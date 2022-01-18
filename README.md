@@ -1,9 +1,9 @@
 ![Lines of code](https://img.shields.io/tokei/lines/github/HansJoakimPersson/
-OWASP_parser)
+OWASP_Parser)
 ![GitHub](https://img.shields.io/github/license/HansJoakimPersson/
-OWASP_parser)
+OWASP_Parser)
 ![GitHub last commit](https://img.shields.io/github/last-commit/HansJoakimPersson/
-OWASP_parser)
+OWASP_Parser)
 
 # OWASP Dependency-Check Parser
 
