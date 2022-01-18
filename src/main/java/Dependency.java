@@ -19,10 +19,11 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Dependency {
-    private String name = "";
+    private String dependencyName = "";
     private String description = "";
     private String project = "";
     private Set<Vulnerability> vulnerabilities = new TreeSet<>();
+    private String moduleName = "";
 
     public String getProject() {
         return project;
@@ -48,7 +49,7 @@ public class Dependency {
     @Override
     public String toString() {
         return "Dependency{" +
-                "name='" + name + '\'' +
+                "name='" + dependencyName + '\'' +
                 ", description='" + description + '\'' +
                 ", vulnerabilities=" + vulnerabilities.toString() +
                 '}';
@@ -58,11 +59,20 @@ public class Dependency {
         return vulnerabilities;
     }
 
-    public String getName() {
-        return name;
+    public String getDependencyName() {
+        return dependencyName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDependencyName(String dependencyName) {
+        this.dependencyName = dependencyName;
     }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public String getModuleName() {
+        return this.moduleName;
+    }
+
 }

@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.util.AreaReference;
@@ -37,10 +38,9 @@ import java.util.stream.Stream;
 
 
 public class Main {
-    
-    static final CleanerProperties props = new CleanerProperties();
-    static final HtmlCleaner htmlCleaner = new HtmlCleaner(props);
+
     private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final HtmlCleaner htmlCleaner = new HtmlCleaner(new CleanerProperties());
 
     public static void main(String[] args) {
         logger.info("Working directory is " + System.getProperty("user.dir"));
@@ -78,33 +78,37 @@ public class Main {
             Object[] header = tn.evaluateXPath("//h3[@class='subsectionheader standardsubsection']");
             Object[] content = tn.evaluateXPath("//div[@class='subsectioncontent']");
 
+            try{
+            String project = StringEscapeUtils.unescapeHtml4(((TagNode)tn.evaluateXPath("//div/h2")[0]).getText().toString()).split(":")[1].trim();
             if (header != null && content != null && header.length > 0 && content.length > 0) {
                 for (int i = 0; i < header.length; i++) {
 
                     Dependency dependency = new Dependency();
-                    String[] split = ((TagNode) header[i]).getText().toString().split(":");
-                    dependency.setProject(split[0]);
-                    dependency.setName(split[1]);
-                    logger.debug("Found dependency: " + dependency.getName());
 
-                    try {
-                        dependency.setDescription(((TagNode) ((TagNode) content[i]).evaluateXPath("/p/b[text()='Description:']/../../pre")[0]).getText().toString());
-                        logger.debug("Added dependency description: " + dependency.getDescription());
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        logger.error(e);
+                    dependency.setProject(project);
+
+                    String[] split =((TagNode) header[i]).getText().toString().split(":");
+                    if(split.length > 1){
+                        dependency.setModuleName(split[0].trim());
+                        dependency.setDependencyName(split[1].trim());
+                    }else{
+                        dependency.setDependencyName(split[0].trim());
                     }
+
+
+                    logger.debug("Found dependency: " + dependency.getProject() + ", " + dependency.getDependencyName());
 
                     // Ugliest code ever written, since the p elements used for cvss i non-hierarchical we have to split
                     // based on content, and Insha'Allah everything lines up
-                    List<TagNode> nodes = (((TagNode) ((TagNode) content[i]).evaluateXPath("/div/p/b/a/../../..")[0]).getAllChildren()).stream().map(o->(TagNode) o).collect(Collectors.toList());
+                    List<TagNode> nodes = (((TagNode) ((TagNode) content[i]).evaluateXPath("/div/p/b/a/../../..")[0]).getAllChildren()).stream().map(o -> (TagNode) o).collect(Collectors.toList());
 
                     List<List<TagNode>> cvss = new ArrayList<>();
                     List<TagNode> temp = new ArrayList<>();
 
                     for (TagNode node : nodes) {
 
-                        if(node.getAllChildren().size() >2 && node.getAllChildren().get(2).toString().contains("button")){
-                            if(!temp.isEmpty()) {
+                        if (node.getAllChildren().size() > 2 && node.getAllChildren().get(2).toString().contains("button")) {
+                            if (!temp.isEmpty()) {
                                 cvss.add(temp);
                             }
                             temp = new ArrayList<>();
@@ -117,45 +121,41 @@ public class Main {
                         Vulnerability vulnerability = new Vulnerability();
 
                         vulnerability.setCVE(((TagNode) ((TagNode) content[i]).evaluateXPath("/div/p/b/a")[j]).getText());
-
                         logger.debug("Added CVE: " + vulnerability.getCVE());
-                        if(vulnerability.getCVE().equals("CVE-2021-44228")){
-                            System.out.println("here we are");
-                        }
+
                         vulnerability.setDescription(((TagNode) ((TagNode) content[i]).evaluateXPath("/div/pre")[j]).getText());
                         logger.debug("Added description: " + vulnerability.getDescription());
 
                         List<TagNode> list = cvss.get(j);
-                            if(list != null) {
-                                for (TagNode o : list) {
-                                    if(o.getName().contains("ul") && o.getAllChildren().size() == 2) {
-                                        if (((TagNode) o.getAllChildren().get(1)).getText().toString().contains("Vector: CVSS:3")) {
-                                            split = ((TagNode) o.getAllChildren().get(0)).getText().toString().split("\\(");
-                                            if(split.length == 2){
-                                                vulnerability.setCVSS3(Double.parseDouble(split[1].replace(")","")));
-                                                logger.debug("Added CVSS3: " + vulnerability.getCVSS3());
-                                            }
-
-                                            split = ((TagNode) o.getAllChildren().get(1)).getText().toString().split("CVSS:3.*?/");
-                                            if(split.length== 2){
-                                                vulnerability.setAttackVector3(split[1]);
-                                                logger.debug("Added attackvector: " + vulnerability.getAttackVector3());
-                                            }
-
+                        if (list != null) {
+                            for (TagNode o : list) {
+                                if (o.getName().contains("ul") && o.getAllChildren().size() == 2) {
+                                    if (((TagNode) o.getAllChildren().get(1)).getText().toString().contains("Vector: CVSS:3")) {
+                                        split = ((TagNode) o.getAllChildren().get(0)).getText().toString().split("\\(");
+                                        if (split.length == 2) {
+                                            vulnerability.setCVSS3(Double.parseDouble(split[1].replace(")", "")));
+                                            logger.debug("Added CVSS3: " + vulnerability.getCVSS3());
                                         }
-                                        else if (((TagNode) o.getAllChildren().get(1)).getText().toString().contains("Vector:")) {
-                                            split = ((TagNode) o.getAllChildren().get(0)).getText().toString().split("\\(");
-                                            if(split.length== 2){
-                                                vulnerability.setCVSS2(Double.parseDouble(split[1].replace(")","")));
-                                                logger.debug("Added CVSS2: " + vulnerability.getCVSS2());
-                                            }
-                                            split = ((TagNode) o.getAllChildren().get(1)).getText().toString().split("Vector: /");
-                                            if(split.length== 2){
-                                                vulnerability.setAttackVector2(split[1]);
-                                                logger.debug("Added attackvector: " + vulnerability.getAttackVector2());
-                                            }
+
+                                        split = ((TagNode) o.getAllChildren().get(1)).getText().toString().split("CVSS:3.*?/");
+                                        if (split.length == 2) {
+                                            vulnerability.setAttackVector3(split[1]);
+                                            logger.debug("Added attackvector: " + vulnerability.getAttackVector3());
+                                        }
+
+                                    } else if (((TagNode) o.getAllChildren().get(1)).getText().toString().contains("Vector:")) {
+                                        split = ((TagNode) o.getAllChildren().get(0)).getText().toString().split("\\(");
+                                        if (split.length == 2) {
+                                            vulnerability.setCVSS2(Double.parseDouble(split[1].replace(")", "")));
+                                            logger.debug("Added CVSS2: " + vulnerability.getCVSS2());
+                                        }
+                                        split = ((TagNode) o.getAllChildren().get(1)).getText().toString().split("Vector: /");
+                                        if (split.length == 2) {
+                                            vulnerability.setAttackVector2(split[1]);
+                                            logger.debug("Added attackvector: " + vulnerability.getAttackVector2());
                                         }
                                     }
+                                }
                             }
                         }
 
@@ -163,7 +163,10 @@ public class Main {
                     }
                     dependencyList.add(dependency);
                 }
+            }
 
+            }catch (ArrayIndexOutOfBoundsException e) {
+                System.err.println(e.getMessage());
             }
 
         } catch (IOException e) {
@@ -184,7 +187,7 @@ public class Main {
             // Set which area the table should be placed in
             AreaReference reference = workbook.getCreationHelper().createAreaReference(
                     new CellReference(0, 0), new CellReference(dependencyList.stream().mapToInt(dependency -> dependency.getVulnerabilities()
-                            .size()).sum(), 9));
+                            .size()).sum(), 10));
 
             // Create
             XSSFTable vulnTable = sheet1.createTable(reference);
@@ -208,15 +211,16 @@ public class Main {
 
             XSSFRow row = sheet1.createRow(0);
             row.createCell(0).setCellValue("Project");
-            row.createCell(1).setCellValue("Dependency");
-            row.createCell(2).setCellValue("CVE");
-            row.createCell(3).setCellValue("Base Score (CVSS2)");
-            row.createCell(4).setCellValue("Severity (CVSS2");
-            row.createCell(5).setCellValue("Attack Vector (CVSS2)");
-            row.createCell(6).setCellValue("Base Score (CVSS3)");
-            row.createCell(7).setCellValue("Severity (CVSS3)");
-            row.createCell(8).setCellValue("Attack Vector (CVSS3)");
-            row.createCell(9).setCellValue("Description");
+            row.createCell(1).setCellValue("Module");
+            row.createCell(2).setCellValue("Dependency");
+            row.createCell(3).setCellValue("CVE");
+            row.createCell(4).setCellValue("Base Score (CVSS2)");
+            row.createCell(5).setCellValue("Severity (CVSS2");
+            row.createCell(6).setCellValue("Attack Vector (CVSS2)");
+            row.createCell(7).setCellValue("Base Score (CVSS3)");
+            row.createCell(8).setCellValue("Severity (CVSS3)");
+            row.createCell(9).setCellValue("Attack Vector (CVSS3)");
+            row.createCell(10).setCellValue("Description");
 
             // Set the values for the table
             int rowNr = 1;
@@ -226,15 +230,16 @@ public class Main {
 
                     row = sheet1.createRow(rowNr);
                     row.createCell(0).setCellValue(dependency.getProject());
-                    row.createCell(1).setCellValue(dependency.getName());
-                    row.createCell(2).setCellValue(vulnerability.getCVE());
-                    row.createCell(3).setCellValue(vulnerability.getCVSS2());
-                    row.createCell(4).setCellValue(toSeverity(vulnerability.getCVSS2()));
-                    row.createCell(5).setCellValue(vulnerability.getAttackVector2());
-                    row.createCell(6).setCellValue(vulnerability.getCVSS3());
-                    row.createCell(7).setCellValue(toSeverity(vulnerability.getCVSS3()));
-                    row.createCell(8).setCellValue(vulnerability.getAttackVector3());
-                    row.createCell(9).setCellValue(vulnerability.getDescription());
+                    row.createCell(1).setCellValue(dependency.getModuleName());
+                    row.createCell(2).setCellValue(dependency.getDependencyName());
+                    row.createCell(3).setCellValue(vulnerability.getCVE());
+                    row.createCell(4).setCellValue(vulnerability.getCVSS2());
+                    row.createCell(5).setCellValue(toSeverity(vulnerability.getCVSS2()));
+                    row.createCell(6).setCellValue(vulnerability.getAttackVector2());
+                    row.createCell(7).setCellValue(vulnerability.getCVSS3());
+                    row.createCell(8).setCellValue(toSeverity(vulnerability.getCVSS3()));
+                    row.createCell(9).setCellValue(vulnerability.getAttackVector3());
+                    row.createCell(10).setCellValue(vulnerability.getDescription());
                     rowNr++;
                 }
             }
