@@ -239,7 +239,9 @@ public class Main {
                     row.createCell(4).setCellValue(vulnerability.getCVSS2());
                     row.createCell(5).setCellValue(toSeverity(vulnerability.getCVSS2()));
                     row.createCell(6).setCellValue(vulnerability.getAttackVector2());
-                    row.createCell(7).setCellValue(vulnerability.getCVSS3());
+                    if(vulnerability.getCVSS3()!=null){
+                        row.createCell(7).setCellValue(vulnerability.getCVSS3());
+                    }
                     row.createCell(8).setCellValue(toSeverity(vulnerability.getCVSS3()));
                     row.createCell(9).setCellValue(vulnerability.getAttackVector3());
                     row.createCell(10).setCellValue(vulnerability.getDescription());
@@ -253,19 +255,19 @@ public class Main {
         }
     }
 
-    private static String toSeverity(double cvss) {
-        if(cvss > 10){
-            return "Critical";
+    private static String toSeverity(Double cvss) {
+        if (cvss != null) {
+            if (cvss >= 9.0) {
+                return "Critical";
+            } else if (cvss >= 7.0) {
+                return "High";
+            } else if (cvss >= 4) {
+                return "Medium";
+            } else if (cvss >= 0.1) {
+                return "Low";
+            }
+            return "None";
         }
-        else if(cvss > 7){
-            return "High";
-        }
-        else if(cvss > 4){
-            return "Medium";
-        }
-        else if(cvss > 0.1){
-            return "Low";
-        }
-        return "None";
+        return "";
     }
 }
