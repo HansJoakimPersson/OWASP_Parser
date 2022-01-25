@@ -22,7 +22,7 @@ public class Dependency {
     private String dependencyName = "";
     private String description = "";
     private String project = "";
-    private Set<Vulnerability> vulnerabilities = new TreeSet<>();
+    private final Set<Vulnerability> vulnerabilities = new TreeSet<>();
     private String moduleName = "";
 
     public String getProject() {
@@ -58,12 +58,12 @@ public class Dependency {
         this.dependencyName = dependencyName;
     }
 
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
-
     public String getModuleName() {
         return this.moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
 }
