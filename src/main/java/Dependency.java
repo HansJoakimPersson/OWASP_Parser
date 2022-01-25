@@ -46,15 +46,6 @@ public class Dependency {
         this.vulnerabilities.add(vulnerability);
     }
 
-    @Override
-    public String toString() {
-        return "Dependency{" +
-                "name='" + dependencyName + '\'' +
-                ", description='" + description + '\'' +
-                ", vulnerabilities=" + vulnerabilities.toString() +
-                '}';
-    }
-
     public Set<Vulnerability> getVulnerabilities() {
         return vulnerabilities;
     }
