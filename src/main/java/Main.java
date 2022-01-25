@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -87,10 +88,12 @@ public class Main {
 
                     dependency.setProject(project);
 
-                    String[] split =((TagNode) header[i]).getText().toString().split(":");
+                    String[] split =((TagNode) header[i]).getText().toString()
+                            .replaceAll(" \\(shaded: .*?\\)","").split(":");
+
                     if(split.length > 1){
-                        dependency.setModuleName(split[0].trim());
-                        dependency.setDependencyName(split[1].trim());
+                        dependency.setModuleName(String.join(": ", Arrays.copyOfRange(split, 0, split.length-1)).trim());
+                        dependency.setDependencyName(split[split.length-1].trim());
                     }else{
                         dependency.setDependencyName(split[0].trim());
                     }
