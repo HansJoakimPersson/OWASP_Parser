@@ -17,4 +17,4 @@ Suggestions/improvements
 
 ## License
 
-The MIT License. Please see [the license file](LICENSE.md) for more information.
+The MIT License. Please see [the license file](LICENSE) for more information.
