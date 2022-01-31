@@ -15,10 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class Dependency {
+    private static final Logger logger = LogManager.getLogger(Main.class);
+
     private final TreeSet<Vulnerability> vulnerabilities = new TreeSet<>(new comparator());
     private String dependencyName = "";
     private String description = "";
@@ -75,6 +81,7 @@ public class Dependency {
             } else if (o1.getCVSS2() != null && o2.getCVSS2() != null) {
                 return o1.getCVSS2() < o2.getCVSS2() ? 1 : -1;
             }
+            logger.error("Should never happen, and means something is wrong with the comparison");
             return 0;
         }
     }
