@@ -27,9 +27,7 @@ public class Dependency {
 
     private final TreeSet<Vulnerability> vulnerabilities = new TreeSet<>(new comparator());
     private String dependencyName = "";
-    private String description = "";
     private String project = "";
-    private final Set<Vulnerability> vulnerabilities = new TreeSet<>();
     private String moduleName = "";
 
     public String getProject() {
