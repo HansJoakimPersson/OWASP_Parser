@@ -4,7 +4,7 @@
 
 # OWASP Dependency-Check Parser
 
-This repository contains for parse OWASP dependency check html files to an Microsoft Excel XLSX file for easy sorting and filtering. Enjoy!
+This repository contains a java app to parse OWASP dependency check html files to an Microsoft Excel XLSX file for easy sorting and filtering. Enjoy!
 
 ## ¯\\_(ツ)_/¯ Warning / Liability
 > Warning:
