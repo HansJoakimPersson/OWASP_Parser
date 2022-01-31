@@ -37,15 +37,12 @@ public class Dependency {
     }
 
     public void setProject(String project) {
-        this.project = project;
+        this.project = cleanString(project);
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    private String cleanString(String input) {
+        return input.replaceAll("&nbsp;", "")
+                .trim();
     }
 
     public void addVulnerability(Vulnerability vulnerability) {
@@ -61,7 +58,7 @@ public class Dependency {
     }
 
     public void setDependencyName(String dependencyName) {
-        this.dependencyName = dependencyName;
+        this.dependencyName = cleanString(dependencyName);
     }
 
     public String getModuleName() {
@@ -69,7 +66,7 @@ public class Dependency {
     }
 
     public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
+        this.moduleName = cleanString(moduleName);
     }
 
     private class comparator implements Comparator<Vulnerability> {
