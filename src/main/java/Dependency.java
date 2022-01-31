@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Dependency {
+    private final TreeSet<Vulnerability> vulnerabilities = new TreeSet<>(new comparator());
     private String dependencyName = "";
     private String description = "";
     private String project = "";
@@ -63,5 +64,18 @@ public class Dependency {
 
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
+    }
+
+    private class comparator implements Comparator<Vulnerability> {
+        @Override
+        public int compare(Vulnerability o1, Vulnerability o2) {
+
+            if (o1.getCVSS3() != null && o2.getCVSS3() != null) {
+                return o1.getCVSS3() < o2.getCVSS3() ? 1 : -1;
+            } else if (o1.getCVSS2() != null && o2.getCVSS2() != null) {
+                return o1.getCVSS2() < o2.getCVSS2() ? 1 : -1;
+            }
+            return 0;
+        }
     }
 }
