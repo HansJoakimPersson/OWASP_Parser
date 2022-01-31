@@ -43,6 +43,8 @@ public class Main {
     private static final HtmlCleaner htmlCleaner = new HtmlCleaner(new CleanerProperties());
 
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
+        logger.info("Starting OWASP Dependency Check Parser ");
         logger.info("Working directory is " + System.getProperty("user.dir"));
 
         List<Dependency> dependencyList = new ArrayList<>();
@@ -59,6 +61,7 @@ public class Main {
 
         try {
             if (!(dependencyList.size() == 0)) {
+                logger.info("Writing Excel file");
                 CreateXLSX(dependencyList);
             } else {
                 logger.info("No dependencies found");
@@ -67,6 +70,9 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        long seconds = (System.currentTimeMillis() - startTime) / 1000;
+        logger.info("Done! (" + String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60)) + ")");
     }
 
     private static List<Dependency> parse(Path p) {

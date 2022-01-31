@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration xmlns="">
     <Properties>
-        <Property name="basePath">../OWASP_parser/logs</Property>
+        <Property name="basePath">.</Property>
     </Properties>
     <Appenders>
         <!-- File Appender -->
-        <RollingFile name="FILE" fileName="${basePath}/logfile.log" append="true"
-                     filePattern="${basePath}/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+        <RollingFile name="FILE" fileName="${basePath}/OWASP_Parser.log" append="true"
+                     filePattern="${basePath}/logfiles/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout pattern="%d{ISO8601} | %p| [%c{2}:%t]: %m%n"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
         </RollingFile>
 
@@ -19,8 +19,9 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="info">
-            <AppenderRef ref="STDOUT"/>
-        </Root>
+        <root level="debug">
+            <appender-ref ref="STDOUT" level="info"/>
+            <appender-ref ref="FILE" level="debug"/>
+        </root>
     </Loggers>
 </Configuration>
