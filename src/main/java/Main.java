@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.util.AreaReference;
@@ -86,7 +85,7 @@ public class Main {
             Object[] content = tn.evaluateXPath("//div[@class='subsectioncontent']");
 
             try {
-                String project = StringEscapeUtils.unescapeHtml4(((TagNode) tn.evaluateXPath("//div/h2")[0]).getText().toString()).split(":")[1].trim();
+                String project = ((TagNode) tn.evaluateXPath("//div/h2")[0]).getText().toString().split(":")[1];
                 if (header != null && content != null && header.length > 0 && content.length > 0) {
                     for (int i = 0; i < header.length; i++) {
 
