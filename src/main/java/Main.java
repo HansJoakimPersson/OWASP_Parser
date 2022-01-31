@@ -97,10 +97,10 @@ public class Main {
                                 .replaceAll(" \\(shaded: .*?\\)", "").split(":");
 
                         if (split.length > 1) {
-                            dependency.setModuleName(String.join(": ", Arrays.copyOfRange(split, 0, split.length - 1)).trim());
-                            dependency.setDependencyName(split[split.length - 1].trim());
+                            dependency.setModuleName(String.join(": ", Arrays.copyOfRange(split, 0, split.length - 1)));
+                            dependency.setDependencyName(split[split.length - 1]);
                         } else {
-                            dependency.setDependencyName(split[0].trim());
+                            dependency.setDependencyName(split[0]);
                         }
 
                         logger.debug("Found dependency: " + dependency.getProject() + ", " + dependency.getDependencyName());
