@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
 
@@ -50,8 +49,10 @@ public class Main {
         List<Dependency> dependencyList = new ArrayList<>();
 
         // Try to read and parse all files in working directory that have html extension
-        try (Stream<Path> paths = Files.walk(Paths.get(System.getProperty("user.dir")))) {
-            paths
+        try {
+            Files.walk(Paths.get(System.getProperty("user.dir")))
+                    .collect(Collectors.toList())
+                    .parallelStream()
                     .filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith("html"))
                     .forEach(p -> dependencyList.addAll(parse(p)));
